@@ -1,4 +1,4 @@
-#main.py
+# main.py
 import numpy as np
 from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
@@ -8,49 +8,44 @@ from losses import SoftmaxCrossEntropy
 from network import NeuralNetwork
 from optimizers import SGD
 from trainer import Trainer
+from hyperparameter_tuning import HyperparameterTuning
 
 # =====================================
 # تحميل البيانات
 # =====================================
 digits = load_digits()
-x = digits.data
+x = digits.data / 16.0
 y = digits.target
 
-# # تطبيع البيانات
-x = x / 16.0
-
-# # تقسيم Train / Test
 x_train, x_test, y_train, y_test = train_test_split(
     x, y, test_size=0.2, random_state=42
 )
 
 # =====================================
-# بناء الشبكة
+# Hyperparameter Tuning
+# =====================================
+tuner = HyperparameterTuning(x_train, y_train, x_test, y_test)
+best_params, best_acc = tuner.run()
+
+print("\nBest hyperparameters:")
+print(best_params)
+print("Best test accuracy:", best_acc)
+
+# =====================================
+# بناء الشبكة النهائية
 # =====================================
 network = NeuralNetwork()
-
-network.add(Dense(64, 50))
+network.add(Dense(64, best_params["hidden_units"]))
 network.add(ReLU())
-network.add(Dense(50, 10))
-
+network.add(Dense(best_params["hidden_units"], 10))
 network.set_loss(SoftmaxCrossEntropy())
 
-# =====================================
-# Optimizer
-# =====================================
-optimizer = SGD(lr=0.1)
-
-# =====================================
-# Trainer
-# =====================================
+optimizer = SGD(best_params["learning_rate"])
 trainer = Trainer(network, optimizer)
 
-# =====================================
-# التدريب
-# =====================================
 trainer.fit(
     x_train, y_train,
     x_test, y_test,
     epochs=20,
-    batch_size=32
+    batch_size=best_params["batch_size"]
 )

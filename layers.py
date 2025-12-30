@@ -86,3 +86,4 @@ class Sigmoid(Layer):
         # # مشتقة sigmoid
         dx = dout * (1.0 - self.out) * self.out
         return dx
+    

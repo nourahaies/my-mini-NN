@@ -3,27 +3,21 @@ import numpy as np
 
 class Trainer:
     def __init__(self, network, optimizer):
-        # الشبكة العصبية
+        # الشبكة التي سندربها
         self.network = network
-        # خوارزمية التحديث
+        # الطريقة التي سنحدث بها الأوزان
         self.optimizer = optimizer
-        # لتخزين آخر دقة اختبار (مهم للـ hyperparameter tuning)
+        # نخزن دقة الاختبار  لنستخدمها في تحسين المعلمات
         self.test_accuracy = None
 
     def train_step(self, x, y):
-        # =====================================
-        # Forward
-        # =====================================
+        # الانتشار الأمامي
         loss = self.network.loss(x, y)
 
-        # =====================================
-        # Backward
-        # =====================================
+        # التفاضل العكسي
         grads = self.network.gradient(x, y)
 
-        # =====================================
-        # Update Weights
-        # =====================================
+        # تحديث الأوزان
         params = self.network.params()
         self.optimizer.update(params, grads)
 
@@ -37,7 +31,7 @@ class Trainer:
         iter_per_epoch = max(data_size // batch_size, 1)
 
         for epoch in range(epochs):
-            # خلط البيانات
+            # نخلط البيانات مشان التدريب يكون أحسن
             idx = np.random.permutation(data_size)
             x_train = x_train[idx]
             y_train = y_train[idx]
@@ -55,12 +49,14 @@ class Trainer:
             if x_test is not None and y_test is not None:
                acc = self.network.accuracy(x_test, y_test)
                self.test_accuracy = acc
+               # نطبع معلومات التدريب
                print(
                  f"Epoch {epoch + 1}/{epochs} | "
                  f"Loss: {avg_loss:.4f} | "
                  f"Test Acc: {acc:.4f}"
                 )
             else:
+               # نطبع معلومات التدريب بدون دقة الاختبار
                print(
                  f"Epoch {epoch + 1}/{epochs} | "
                  f"Loss: {avg_loss:.4f}"

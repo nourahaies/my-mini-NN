@@ -1,37 +1,33 @@
 #losses.py
 import numpy as np
 
-# ========================================
-# Mean Squared Error Loss
-# ========================================
+# دالة الخطأ التربيعية 
 class MeanSquaredError:
     def __init__(self):
-        self.y = None  # # خرج الشبكة
-        self.t = None  # # القيم الحقيقية
+        self.y = None  # مخرجات الشبكة
+        self.t = None  # القيم الحقيقية
 
     def forward(self, y, t):
-        # # تخزين القيم لاستخدامها بالـ backward
+        # نخزن القيم لنستخدمها في التفاضل العكسي
         self.y = y
         self.t = t
 
-        # # حساب الـ loss
+        # حساب مقدار الخطأ
         loss = 0.5 * np.sum((y - t) ** 2) / y.shape[0]
         return loss
 
     def backward(self):
-        # # مشتقة الـ loss بالنسبة للخرج
+        # مشتقة دالة الخطأ بالنسبة للمخرج
         batch_size = self.y.shape[0]
         dx = (self.y - self.t) / batch_size
         return dx
 
 
-# ========================================
-# Softmax + Cross Entropy Loss
-# ========================================
+# دالة الخطأ الخاصة بالتصنيف
 class SoftmaxCrossEntropy:
     def __init__(self):
-        self.y = None  # # softmax output
-        self.t = None  # # labels
+        self.y = None  # مخرجات softmax
+        self.t = None  # التسميات
 
     def softmax(self, x):
         x = x - np.max(x, axis=1, keepdims=True)
@@ -39,24 +35,24 @@ class SoftmaxCrossEntropy:
         return exp_x / np.sum(exp_x, axis=1, keepdims=True)
 
     def forward(self, x, t):
-        # # حساب softmax
+        # حساب دالة softmax مشان نحول القيم لاحتمالات
         self.y = self.softmax(x)
         self.t = t
 
-        # # إذا كانت التسمية one-hot نحولها
+        # لو التسمية one-hot نحولها لرقم فئة
         if t.ndim == 2:
             t = np.argmax(t, axis=1)
 
         batch_size = x.shape[0]
 
-        # # حساب Cross Entropy
+        # حساب الخطأ باستخدام Cross Entropy
         loss = -np.sum(np.log(self.y[np.arange(batch_size), t] + 1e-7))
         return loss / batch_size
 
     def backward(self):
         batch_size = self.t.shape[0]
 
-        # # إذا كانت one-hot
+        # لو التسمية بصيغة one-hot
         if self.t.ndim == 2:
             dx = (self.y - self.t) / batch_size
         else:

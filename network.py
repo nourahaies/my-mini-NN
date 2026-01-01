@@ -3,9 +3,9 @@ import numpy as np
 
 class NeuralNetwork:
     def __init__(self):
-        # قائمة الطبقات
+        # نخزن الطبقات هنا
         self.layers = []
-        # تابع الخسارة
+        # دالة حساب الخطأ
         self.loss_fn = None
 
     def add(self, layer):
@@ -20,24 +20,25 @@ class NeuralNetwork:
         return x
 
     def gradient(self, x, y):
-        # ---------- Forward ----------
+        # الانتشار الأمامي
         out = x
         for layer in self.layers:
             out = layer.forward(out)
 
-        # ---------- Loss ----------
+        # حساب الخطأ
         loss = self.loss_fn.forward(out, y)
 
-        # ---------- Backward ----------
+        # التفاضل العكسي
         dout = self.loss_fn.backward()
 
         for layer in reversed(self.layers):
             dout = layer.backward(dout)
 
-        # ---------- Collect gradients ----------
+        # جمع المشتقات
         grads = {}
         for i, layer in enumerate(self.layers):
             if hasattr(layer, "dW"):
+                # نخزن مشتقات الأوزان وال bias
                 grads[f"W{i}"] = layer.dW
                 grads[f"b{i}"] = layer.db
 

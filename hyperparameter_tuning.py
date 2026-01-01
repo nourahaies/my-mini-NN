@@ -26,7 +26,7 @@ class HyperparameterTuning:
         for lr in learning_rates:
             for batch_size in batch_sizes:
                 for hidden in hidden_units:
-                    # بناء الشبكة
+                    # بناء شبكة جديدة
                     network = NeuralNetwork()
                     network.add(Dense(64, hidden))
                     network.add(ReLU())
@@ -36,7 +36,7 @@ class HyperparameterTuning:
                     optimizer = SGD(lr)
                     trainer = Trainer(network, optimizer)
 
-                    # تدريب قصير (سريع للتجربة)
+                    # تدريب سريع مشان نجرب الإعدادات
                     trainer.fit(
                         self.x_train, self.y_train,
                         self.x_test, self.y_test,
@@ -46,6 +46,7 @@ class HyperparameterTuning:
 
                     acc = trainer.test_accuracy
 
+                    # نطبع نتائج التجربة
                     print(
                         f"lr={lr}, batch={batch_size}, hidden={hidden} "
                         f"=> acc={acc:.4f}"
